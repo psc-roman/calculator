@@ -3,203 +3,233 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Advanced Math Parser Calculator</title>
+    <title>High-Precision Math Parser</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
       body {
-        background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
+        background: radial-gradient(circle at top left, #1e293b, #0f172a);
         min-height: 100vh;
         display: flex;
         align-items: center;
         justify-content: center;
-        font-family:
-          "Inter",
-          system-ui,
-          -apple-system,
-          sans-serif;
+        font-family: "JetBrains Mono", "Fira Code", monospace;
       }
       .glass {
-        background: rgba(255, 255, 255, 0.05);
-        backdrop-filter: blur(10px);
+        background: rgba(15, 23, 42, 0.8);
+        backdrop-filter: blur(16px);
         border: 1px solid rgba(255, 255, 255, 0.1);
-        box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+        box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.7);
       }
-      .calc-button {
-        transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
-      }
-      .calc-button:active {
-        transform: scale(0.95);
-      }
-      /* Custom styling for the editable input */
+
       #main-display {
         background: transparent;
         border: none;
         outline: none;
         text-align: right;
         width: 100%;
-        color: white;
-        font-size: 2.25rem;
-        font-weight: 300;
-        letter-spacing: -0.025em;
+        color: #61ffca;
+        font-size: 1.25rem;
+        min-height: 1.5rem;
+        text-rendering: optimizeSpeed;
+        overflow-x: auto;
+        white-space: pre;
+        scrollbar-width: thin;
+        scrollbar-color: rgba(255, 255, 255, 0.1) transparent;
       }
-      .display-scroll::-webkit-scrollbar {
-        height: 4px;
+
+      .display-container {
+        max-width: 100%;
+        width: 100%;
+        overflow: hidden;
+        display: flex;
+        flex-direction: column;
+        contain: content;
       }
-      .display-scroll::-webkit-scrollbar-thumb {
-        background: rgba(255, 255, 255, 0.2);
-        border-radius: 10px;
+
+      #history-display {
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+        width: 100%;
+        direction: rtl;
+        text-align: left;
+      }
+
+      .calc-button {
+        transition: all 0.15s ease;
+      }
+      .calc-button:hover {
+        filter: brightness(1.3);
+        transform: translateY(-1px);
+      }
+      .calc-button:active {
+        transform: translateY(1px);
+      }
+
+      .placeholder-text {
+        color: #94a3b8;
+        font-style: italic;
+        font-size: 0.875rem;
       }
     </style>
   </head>
   <body class="p-4">
     <div
-      class="glass w-full max-w-md rounded-3xl overflow-hidden p-6 flex flex-col gap-6"
+      class="glass w-full max-w-lg rounded-2xl p-6 flex flex-col gap-4 overflow-hidden"
     >
-      <!-- Display Section -->
-      <div class="flex flex-col gap-1 text-right overflow-hidden">
-        <div
-          id="history-display"
-          class="text-slate-400 text-sm h-6 display-scroll overflow-x-auto whitespace-nowrap"
-        ></div>
-        <!-- Changed to an input to allow direct typing -->
-        <input
-          type="text"
-          id="main-display"
-          value="0"
-          spellcheck="false"
-          autocomplete="off"
-        />
+      <div class="flex justify-between items-center mb-2">
+        <span class="text-xs font-bold text-slate-500 tracking-widest uppercase"
+          >Precision Engine</span
+        >
+        <div class="flex gap-2">
+          <button
+            onclick="copyResult()"
+            class="text-[10px] text-slate-400 hover:text-white border border-slate-700 px-2 py-1 rounded"
+          >
+            COPY
+          </button>
+        </div>
       </div>
 
-      <!-- Buttons Grid -->
-      <div class="grid grid-cols-4 gap-3">
-        <!-- Row 1 -->
+      <div
+        class="display-container bg-black/40 p-4 rounded-xl border border-white/5"
+      >
+        <div id="history-display" class="text-slate-500 text-xs h-5 mb-1"></div>
+        <div
+          id="main-display"
+          contenteditable="plaintext-only"
+          spellcheck="false"
+        >
+          0
+        </div>
+      </div>
+
+      <div class="grid grid-cols-4 gap-2">
         <button
           onclick="clearAll()"
-          class="calc-button col-span-2 bg-rose-500/20 hover:bg-rose-500/30 text-rose-400 font-medium py-4 rounded-2xl"
+          class="calc-button col-span-2 bg-rose-900/40 text-rose-400 py-4 rounded-lg"
         >
           AC
         </button>
         <button
           onclick="appendToken('(')"
-          class="calc-button bg-slate-700/40 hover:bg-slate-700/60 text-slate-300 py-4 rounded-2xl"
+          class="calc-button bg-slate-800 text-slate-300 py-4 rounded-lg"
         >
           (
         </button>
         <button
           onclick="appendToken(')')"
-          class="calc-button bg-slate-700/40 hover:bg-slate-700/60 text-slate-300 py-4 rounded-2xl"
+          class="calc-button bg-slate-800 text-slate-300 py-4 rounded-lg"
         >
           )
         </button>
 
-        <!-- Row 2 -->
         <button
           onclick="appendToken('7')"
-          class="calc-button bg-white/5 hover:bg-white/10 text-white py-4 rounded-2xl text-xl"
+          class="calc-button bg-slate-800/50 text-white py-4 rounded-lg"
         >
           7
         </button>
         <button
           onclick="appendToken('8')"
-          class="calc-button bg-white/5 hover:bg-white/10 text-white py-4 rounded-2xl text-xl"
+          class="calc-button bg-slate-800/50 text-white py-4 rounded-lg"
         >
           8
         </button>
         <button
           onclick="appendToken('9')"
-          class="calc-button bg-white/5 hover:bg-white/10 text-white py-4 rounded-2xl text-xl"
+          class="calc-button bg-slate-800/50 text-white py-4 rounded-lg"
         >
           9
         </button>
         <button
           onclick="appendToken('/')"
-          class="calc-button bg-amber-500/20 hover:bg-amber-500/30 text-amber-400 py-4 rounded-2xl text-xl"
+          class="calc-button bg-indigo-900/40 text-indigo-400 py-4 rounded-lg"
         >
           ÷
         </button>
 
-        <!-- Row 3 -->
         <button
           onclick="appendToken('4')"
-          class="calc-button bg-white/5 hover:bg-white/10 text-white py-4 rounded-2xl text-xl"
+          class="calc-button bg-slate-800/50 text-white py-4 rounded-lg"
         >
           4
         </button>
         <button
           onclick="appendToken('5')"
-          class="calc-button bg-white/5 hover:bg-white/10 text-white py-4 rounded-2xl text-xl"
+          class="calc-button bg-slate-800/50 text-white py-4 rounded-lg"
         >
           5
         </button>
         <button
           onclick="appendToken('6')"
-          class="calc-button bg-white/5 hover:bg-white/10 text-white py-4 rounded-2xl text-xl"
+          class="calc-button bg-slate-800/50 text-white py-4 rounded-lg"
         >
           6
         </button>
         <button
           onclick="appendToken('*')"
-          class="calc-button bg-amber-500/20 hover:bg-amber-500/30 text-amber-400 py-4 rounded-2xl text-xl"
+          class="calc-button bg-indigo-900/40 text-indigo-400 py-4 rounded-lg"
         >
           ×
         </button>
 
-        <!-- Row 4 -->
         <button
           onclick="appendToken('1')"
-          class="calc-button bg-white/5 hover:bg-white/10 text-white py-4 rounded-2xl text-xl"
+          class="calc-button bg-slate-800/50 text-white py-4 rounded-lg"
         >
           1
         </button>
         <button
           onclick="appendToken('2')"
-          class="calc-button bg-white/5 hover:bg-white/10 text-white py-4 rounded-2xl text-xl"
+          class="calc-button bg-slate-800/50 text-white py-4 rounded-lg"
         >
           2
         </button>
         <button
           onclick="appendToken('3')"
-          class="calc-button bg-white/5 hover:bg-white/10 text-white py-4 rounded-2xl text-xl"
+          class="calc-button bg-slate-800/50 text-white py-4 rounded-lg"
         >
           3
         </button>
         <button
           onclick="appendToken('-')"
-          class="calc-button bg-amber-500/20 hover:bg-amber-500/30 text-amber-400 py-4 rounded-2xl text-xl"
+          class="calc-button bg-indigo-900/40 text-indigo-400 py-4 rounded-lg"
         >
           −
         </button>
 
-        <!-- Row 5 -->
         <button
           onclick="appendToken('0')"
-          class="calc-button bg-white/5 hover:bg-white/10 text-white py-4 rounded-2xl text-xl"
+          class="calc-button bg-slate-800/50 text-white py-4 rounded-lg"
         >
           0
         </button>
         <button
           onclick="appendToken('.')"
-          class="calc-button bg-white/5 hover:bg-white/10 text-white py-4 rounded-2xl text-xl"
+          class="calc-button bg-slate-800/50 text-white py-4 rounded-lg"
         >
           .
         </button>
         <button
           onclick="performCalculation()"
-          class="calc-button bg-emerald-500/20 hover:bg-emerald-500/30 text-emerald-400 py-4 rounded-2xl text-xl"
+          class="calc-button bg-emerald-900/40 text-emerald-400 py-4 rounded-lg"
         >
           =
         </button>
         <button
           onclick="appendToken('+')"
-          class="calc-button bg-amber-500/20 hover:bg-amber-500/30 text-amber-400 py-4 rounded-2xl text-xl"
+          class="calc-button bg-indigo-900/40 text-indigo-400 py-4 rounded-lg"
         >
           +
         </button>
       </div>
 
-      <div id="status" class="text-center text-xs text-slate-500">
-        You can type directly or use the buttons
+      <div
+        id="status"
+        class="text-[10px] text-slate-600 uppercase tracking-tighter"
+      >
+        System: Stable
       </div>
     </div>
 
@@ -211,87 +241,139 @@
       const statusText = document.getElementById("status");
 
       let isResultShown = false;
+      let expression = ""; // Stores the actual data for the parser
+      let isLargeDataStored = false;
 
-      // Sync local expression with input value
-      const getExpression = () =>
-        mainDisplay.value === "0" ? "" : mainDisplay.value;
+      const MAX_LENGTH_THRESHOLD = 200_000;
 
       window.appendToken = (token) => {
-        let current = mainDisplay.value;
+        if (isResultShown || isLargeDataStored) {
+          expression =
+            !isNaN(token) || token === "(" ? token : expression + token;
 
-        if (isResultShown) {
-          if (!isNaN(token) || token === "(") {
-            mainDisplay.value = token;
+          // If it was a large data placeholder, we clear it and show actual text
+          // Unless the new appended string is ALSO still over the limit (unlikely for button clicks)
+          if (expression.length < MAX_LENGTH_THRESHOLD) {
+            mainDisplay.innerText = expression;
+            isLargeDataStored = false;
           } else {
-            mainDisplay.value = current + token;
+            mainDisplay.innerHTML = `<span class="placeholder-text">[Large Expression: ${expression.length} chars]</span>`;
           }
+
           isResultShown = false;
         } else {
-          if (current === "0") {
-            mainDisplay.value = token;
+          if (mainDisplay.innerText === "0") {
+            mainDisplay.innerText = token;
+            expression = token;
           } else {
-            mainDisplay.value += token;
+            mainDisplay.innerText += token;
+            expression = mainDisplay.innerText;
           }
         }
-        mainDisplay.focus();
-        updateStatus("Typing...");
+        placeCaretAtEnd(mainDisplay);
       };
 
       window.clearAll = () => {
-        mainDisplay.value = "0";
+        mainDisplay.innerText = "0";
+        expression = "";
         historyDisplay.innerText = "";
-        updateStatus("Ready to compute");
         isResultShown = false;
-        mainDisplay.focus();
+        isLargeDataStored = false;
+        statusText.innerText = "System: Ready";
       };
 
       window.performCalculation = () => {
-        const exp = mainDisplay.value;
+        const exp = isLargeDataStored
+          ? expression
+          : mainDisplay.innerText.trim();
         if (!exp || exp === "0") return;
 
-        try {
-          const result = calculate(exp);
-          historyDisplay.innerText = exp + " =";
-          mainDisplay.value = result;
-          isResultShown = true;
-          updateStatus("Calculated successfully", false);
-        } catch (error) {
-          updateStatus("Invalid Expression", true);
-          console.error("Math Parser Error:", error);
-        }
+        statusText.innerText = "Computing...";
+
+        setTimeout(() => {
+          try {
+            const start = performance.now();
+            const result = calculate(exp);
+            const end = performance.now();
+
+            historyDisplay.innerText =
+              exp.length > MAX_LENGTH_THRESHOLD
+                ? `[Large Expression: ${exp.length} chars] =`
+                : exp + " =";
+            mainDisplay.innerText = result;
+            expression = result.toString();
+            isResultShown = true;
+            isLargeDataStored = false;
+            statusText.innerText = `Done in ${(end - start).toFixed(2)}ms`;
+          } catch (err) {
+            statusText.innerText = "Syntax Error";
+          }
+        }, 10);
       };
 
-      function updateStatus(msg, isError = false) {
-        statusText.innerText = msg;
-        if (isError) {
-          statusText.className = "text-center text-xs text-rose-400";
-        } else {
-          statusText.className = "text-center text-xs text-slate-500";
-        }
+      window.copyResult = () => {
+        const text = isLargeDataStored ? expression : mainDisplay.innerText;
+        navigator.clipboard.writeText(text).then(() => {
+          const originalStatus = statusText.innerText;
+          statusText.innerText = "Copied to clipboard";
+          setTimeout(() => (statusText.innerText = originalStatus), 2000);
+        });
+      };
+
+      function placeCaretAtEnd(el) {
+        el.focus();
+        const range = document.createRange();
+        range.selectNodeContents(el);
+        range.collapse(false);
+        const sel = window.getSelection();
+        sel.removeAllRanges();
+        sel.addRange(range);
       }
 
-      // Handle direct typing
-      mainDisplay.addEventListener("input", (e) => {
-        if (isResultShown) isResultShown = false;
-        updateStatus("Typing...");
-      });
-
-      // Handle Enter key for calculation
       mainDisplay.addEventListener("keydown", (e) => {
         if (e.key === "Enter") {
+          e.preventDefault();
           performCalculation();
         }
-      });
-
-      // Prevent "0" from sticking around when first typing
-      mainDisplay.addEventListener("focus", () => {
-        if (mainDisplay.value === "0") {
-          mainDisplay.setSelectionRange(0, 1);
+        // If user types while a large data placeholder is shown, clear it
+        if (
+          isLargeDataStored &&
+          !e.ctrlKey &&
+          !e.metaKey &&
+          e.key.length === 1
+        ) {
+          mainDisplay.innerText = "";
+          expression = "";
+          isLargeDataStored = false;
         }
       });
 
-      // Initialize focus
-      mainDisplay.focus();
+      mainDisplay.addEventListener("paste", (e) => {
+        e.preventDefault();
+        const text = (e.originalEvent || e).clipboardData.getData("text/plain");
+
+        if (text.length > MAX_LENGTH_THRESHOLD) {
+          expression = text;
+          isLargeDataStored = true;
+          isResultShown = false;
+          mainDisplay.innerHTML = `<span class="placeholder-text">[Large Expression: ${text.length} chars]</span>`;
+          statusText.innerText = "Large data intercepted - Press = to compute";
+        } else {
+          const selection = window.getSelection();
+          if (!selection.rangeCount) return;
+          selection.deleteFromDocument();
+          selection.getRangeAt(0).insertNode(document.createTextNode(text));
+          selection.collapseToEnd();
+          expression = mainDisplay.innerText;
+          isLargeDataStored = false;
+        }
+      });
+
+      mainDisplay.addEventListener("input", () => {
+        if (!isLargeDataStored) {
+          expression = mainDisplay.innerText;
+        }
+      });
     </script>
   </body>
 </html>
