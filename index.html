@@ -199,7 +199,10 @@
             statusText.innerText = `Done in ${(end - start).toFixed(2)}ms`;
             scrollDisplayToEnd();
           } catch (err) {
-            statusText.innerText = "Syntax Error";
+            if (err instanceof Error) {
+              statusText.innerText = err.message;
+            }
+            statusText.innerText = "Error";
           }
         }, 10);
       };
