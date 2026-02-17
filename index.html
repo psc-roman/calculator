@@ -95,30 +95,33 @@
       </div>
 
       <div class="grid grid-cols-4 gap-2">
-        <button onclick="clearAll()" class="calc-button bg-rose-900/40 text-rose-400 py-4 rounded-lg">AC</button>
+        <button onclick="clearAll()" class="calc-button col-span-2 bg-rose-900/40 text-rose-400 py-4 rounded-lg">AC</button>
+        <button onclick="appendToken('e')" class="calc-button bg-amber-900/30 text-amber-400 py-4 rounded-lg">e</button>
+        <button onclick="appendToken('!')" class="calc-button bg-amber-900/30 text-amber-400 py-4 rounded-lg">x!</button>
+
         <button onclick="appendToken('(')" class="calc-button bg-slate-800 text-slate-300 py-4 rounded-lg">(</button>
         <button onclick="appendToken(')')" class="calc-button bg-slate-800 text-slate-300 py-4 rounded-lg">)</button>
         <button onclick="appendToken('^')" class="calc-button bg-indigo-900/40 text-indigo-400 py-4 rounded-lg">^</button>
+        <button onclick="appendToken('/')" class="calc-button bg-indigo-900/40 text-indigo-400 py-4 rounded-lg">÷</button>
 
         <button onclick="appendToken('7')" class="calc-button bg-slate-800/50 text-white py-4 rounded-lg">7</button>
         <button onclick="appendToken('8')" class="calc-button bg-slate-800/50 text-white py-4 rounded-lg">8</button>
         <button onclick="appendToken('9')" class="calc-button bg-slate-800/50 text-white py-4 rounded-lg">9</button>
-        <button onclick="appendToken('/')" class="calc-button bg-indigo-900/40 text-indigo-400 py-4 rounded-lg">÷</button>
+        <button onclick="appendToken('*')" class="calc-button bg-indigo-900/40 text-indigo-400 py-4 rounded-lg">×</button>
 
         <button onclick="appendToken('4')" class="calc-button bg-slate-800/50 text-white py-4 rounded-lg">4</button>
         <button onclick="appendToken('5')" class="calc-button bg-slate-800/50 text-white py-4 rounded-lg">5</button>
         <button onclick="appendToken('6')" class="calc-button bg-slate-800/50 text-white py-4 rounded-lg">6</button>
-        <button onclick="appendToken('*')" class="calc-button bg-indigo-900/40 text-indigo-400 py-4 rounded-lg">×</button>
+        <button onclick="appendToken('-')" class="calc-button bg-indigo-900/40 text-indigo-400 py-4 rounded-lg">−</button>
 
         <button onclick="appendToken('1')" class="calc-button bg-slate-800/50 text-white py-4 rounded-lg">1</button>
         <button onclick="appendToken('2')" class="calc-button bg-slate-800/50 text-white py-4 rounded-lg">2</button>
         <button onclick="appendToken('3')" class="calc-button bg-slate-800/50 text-white py-4 rounded-lg">3</button>
-        <button onclick="appendToken('-')" class="calc-button bg-indigo-900/40 text-indigo-400 py-4 rounded-lg">−</button>
+        <button onclick="appendToken('+')" class="calc-button bg-indigo-900/40 text-indigo-400 py-4 rounded-lg">+</button>
 
         <button onclick="appendToken('0')" class="calc-button bg-slate-800/50 text-white py-4 rounded-lg">0</button>
         <button onclick="appendToken('.')" class="calc-button bg-slate-800/50 text-white py-4 rounded-lg">.</button>
-        <button onclick="performCalculation()" class="calc-button bg-emerald-900/40 text-emerald-400 py-4 rounded-lg">=</button>
-        <button onclick="appendToken('+')" class="calc-button bg-indigo-900/40 text-indigo-400 py-4 rounded-lg">+</button>
+        <button onclick="performCalculation()" class="calc-button col-span-2 bg-emerald-900/40 text-emerald-400 py-4 rounded-lg">=</button>
       </div>
 
       <div id="status" class="text-[10px] text-slate-600 tracking-tighter">System: Stable</div>
@@ -155,7 +158,7 @@
           }
           isResultShown = false;
         } else {
-          if (mainDisplay.innerText === "0") {
+          if (mainDisplay.innerText === "0" && token !== "." && token !== "!" && token !== "^" && token !== "*" && token !== "/" && token !== "+") {
             mainDisplay.innerText = token;
             expression = token;
           } else {
@@ -163,7 +166,6 @@
             expression = mainDisplay.innerText;
           }
         }
-        // Removed forced focus() to prevent keyboard trigger
         scrollDisplayToEnd();
       };
 
@@ -221,7 +223,6 @@
         mainDisplay.scrollLeft = mainDisplay.scrollWidth;
       }
 
-      // Keep manual entry working
       mainDisplay.addEventListener("keydown", (e) => {
         if (e.key === "Enter") {
           e.preventDefault();
