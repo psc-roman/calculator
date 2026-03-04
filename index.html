@@ -3,7 +3,7 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Calculator Pro</title>
+    <title>Calculator</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
       body {
@@ -147,15 +147,10 @@
       let isLargeDataStored = false;
       const MAX_LENGTH_THRESHOLD = 200_000;
 
-      // Handle the Paste Logic: Trim newlines and take only the first line
       mainDisplay.addEventListener("paste", (e) => {
         e.preventDefault();
-        let paste = (e.clipboardData || window.clipboardData).getData("text");
-
-        // Trim leading/trailing whitespace and cut everything after the first newline
+        const paste = (e.clipboardData || window.clipboardData).getData("text");
         const cleanPaste = paste.trim().split(/\r?\n/)[0];
-
-        // Insert into current expression
         document.execCommand("insertText", false, cleanPaste);
       });
 
@@ -245,3 +240,4 @@
     </script>
   </body>
 </html>
+
